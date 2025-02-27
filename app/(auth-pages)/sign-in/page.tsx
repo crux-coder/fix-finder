@@ -37,6 +37,9 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
         <SubmitButton pendingText="Signing In..." formAction={signInAction}>
           Sign in
         </SubmitButton>
+        <SubmitButton pendingText="Signing In..." formAction={''}>
+          Sign in with Magic Link
+        </SubmitButton>
         <FormMessage message={searchParams} />
       </div>
     </form>

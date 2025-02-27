@@ -61,6 +61,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
   const callbackUrl = formData.get("callbackUrl")?.toString();
+console.log(callbackUrl);
 
   if (!email) {
     return encodedRedirect("error", "/forgot-password", "Email is required");
