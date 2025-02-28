@@ -29,7 +29,15 @@ export default async function Signup(props: {
           </Link>
         </p>
         <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-          <Label htmlFor="email">Email</Label>
+          <div className="flex justify-between align-center">
+            <Label htmlFor="email">Email</Label>
+            <Link
+              className="text-xs text-foreground underline"
+              href="/sign-in-with-magic-link"
+            >
+              Sign in with Magic Link
+            </Link>
+          </div>
           <Input name="email" placeholder="you@example.com" required />
           <Label htmlFor="password">Password</Label>
           <Input
