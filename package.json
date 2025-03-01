@@ -4,7 +4,7 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"prepare": "husky install",
+		"prepare": "npx husky install",
 		"format": "npx prettier --write .",
 		"pre-commit": "lint-staged",
 		"test": "echo No test set up"

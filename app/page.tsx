@@ -5,7 +5,6 @@ import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import React from "react";
 
 export default async function Home() {
-	console.log(document.title);
 	return (
 		<>
 			<Hero />
