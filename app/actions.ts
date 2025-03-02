@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { UserProfile } from "@/utils/types/UserProfile";
 
 export const signUpAction = async (formData: FormData) => {
 	const email = formData.get("email")?.toString();
@@ -168,6 +169,12 @@ export const createProfileAction = async (formData: FormData) => {
 	const firstName = formData.get("firstName");
 	const lastName = formData.get("lastName");
 	const phoneNumber = formData.get("phoneNumber");
+	const createdUserProfile: UserProfile = {
+		first_name: firstName ? firstName.toString() : null,
+		last_name: lastName ? lastName.toString() : null,
+		phone_number: phoneNumber ? phoneNumber.toString() : null,
+	};
+	const file = formData.get("picture") as File | null;
 
 	const {
 		data: { user },
@@ -185,11 +192,31 @@ export const createProfileAction = async (formData: FormData) => {
 		);
 	}
 
+	if (file) {
+		const filePath = `${Date.now()}-${file.name}`;
+		const { data: profilePictureData, error: profilePictureUploadError } =
+			await supabase.storage
+				.from("user-profile-pictures")
+				.upload(filePath, file);
+
+		if (profilePictureUploadError) {
+			return encodedRedirect(
+				"error",
+				"/protected/profile-create",
+				profilePictureUploadError.message
+			);
+		}
+
+		const profilePictureURL = supabase.storage
+			.from("user-profile-pictures")
+			.getPublicUrl(filePath).data.publicUrl;
+		createdUserProfile.profile_picture_url = profilePictureURL;
+		createdUserProfile.profile_picture_filepath = filePath;
+	}
+
 	const { error } = await supabase.from("user_profiles").insert({
 		id: user.id,
-		first_name: firstName,
-		last_name: lastName,
-		phone_number: phoneNumber,
+		...createdUserProfile,
 	});
 
 	if (error?.code === "23505") {
@@ -216,6 +243,12 @@ export const updateProfileAction = async (formData: FormData) => {
 	const firstName = formData.get("firstName");
 	const lastName = formData.get("lastName");
 	const phoneNumber = formData.get("phoneNumber");
+	const file = formData.get("picture") as File | null;
+	const updatedUserProfile: UserProfile = {
+		first_name: firstName ? firstName.toString() : null,
+		last_name: lastName ? lastName.toString() : null,
+		phone_number: phoneNumber ? phoneNumber.toString() : null,
+	};
 
 	if (!firstName || !lastName || !phoneNumber) {
 		return encodedRedirect(
@@ -233,13 +266,56 @@ export const updateProfileAction = async (formData: FormData) => {
 		return encodedRedirect("error", "/sign-in", "You are not singed in");
 	}
 
+	if (file) {
+		const filePath = `${Date.now()}-${file.name}`;
+		const { data: userProfileData, error: userProfileError } =
+			await supabase.from("user_profiles").select().eq("id", user.id);
+		const userProfile = userProfileData && userProfileData[0];
+
+		if (userProfileError) {
+			return encodedRedirect(
+				"error",
+				"/protected/profile-update",
+				userProfileError.message
+			);
+		}
+
+		const { data: profilePictureData, error: profilePictureUploadError } =
+			await supabase.storage
+				.from("user-profile-pictures")
+				.upload(filePath, file);
+
+		if (profilePictureUploadError) {
+			return encodedRedirect(
+				"error",
+				"/protected/profile-update",
+				profilePictureUploadError.message
+			);
+		}
+
+		const profilePictureURL = supabase.storage
+			.from("user-profile-pictures")
+			.getPublicUrl(filePath).data.publicUrl;
+		updatedUserProfile.profile_picture_url = profilePictureURL;
+		updatedUserProfile.profile_picture_filepath = filePath;
+
+		if (userProfile?.profile_picture_filepath) {
+			const { error: profilePictureDeleteError } = await supabase.storage
+				.from("user-profile-pictures")
+				.remove([userProfile.profile_picture_filepath]);
+			if (profilePictureDeleteError) {
+				return encodedRedirect(
+					"error",
+					"/protected/profile-update",
+					profilePictureDeleteError.message
+				);
+			}
+		}
+	}
+
 	const { error } = await supabase
 		.from("user_profiles")
-		.update({
-			first_name: firstName,
-			last_name: lastName,
-			phone_number: phoneNumber,
-		})
+		.update(updatedUserProfile)
 		.eq("id", user.id);
 
 	if (error) {

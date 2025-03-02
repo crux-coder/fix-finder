@@ -39,7 +39,7 @@ export default async function ProfileEditor(props: {
 				<Input
 					name="firstName"
 					placeholder="First Name"
-					defaultValue={userProfile.first_name}
+					defaultValue={userProfile?.first_name}
 					required
 				/>
 			</div>
@@ -48,7 +48,7 @@ export default async function ProfileEditor(props: {
 				<Input
 					name="lastName"
 					placeholder="Last Name"
-					defaultValue={userProfile.last_name}
+					defaultValue={userProfile?.last_name}
 					required
 				/>
 			</div>
@@ -59,7 +59,7 @@ export default async function ProfileEditor(props: {
 					pattern="^\+?\d+$"
 					name="phoneNumber"
 					placeholder="Phone Number"
-					defaultValue={userProfile.phone_number}
+					defaultValue={userProfile?.phone_number}
 					required
 				/>
 			</div>
