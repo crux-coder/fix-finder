@@ -162,3 +162,97 @@ export const signOutAction = async () => {
 	await supabase.auth.signOut();
 	return redirect("/sign-in");
 };
+
+export const createProfileAction = async (formData: FormData) => {
+	const supabase = await createClient();
+	const firstName = formData.get("firstName");
+	const lastName = formData.get("lastName");
+	const phoneNumber = formData.get("phoneNumber");
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		return encodedRedirect("error", "/sign-in", "You are not singed in");
+	}
+
+	if (!firstName || !lastName || !phoneNumber) {
+		return encodedRedirect(
+			"error",
+			"/protected/profile-create",
+			"First name, last name and phone number are required"
+		);
+	}
+
+	const { error } = await supabase.from("user_profiles").insert({
+		id: user.id,
+		first_name: firstName,
+		last_name: lastName,
+		phone_number: phoneNumber,
+	});
+
+	if (error?.code === "23505") {
+		return encodedRedirect(
+			"error",
+			"/protected/profile-update",
+			"User has already been created, please edit the profile"
+		);
+	}
+
+	if (error) {
+		return encodedRedirect(
+			"error",
+			"/protected/profile-create",
+			error.message
+		);
+	}
+
+	return redirect("/protected");
+};
+
+export const updateProfileAction = async (formData: FormData) => {
+	const supabase = await createClient();
+	const firstName = formData.get("firstName");
+	const lastName = formData.get("lastName");
+	const phoneNumber = formData.get("phoneNumber");
+
+	if (!firstName || !lastName || !phoneNumber) {
+		return encodedRedirect(
+			"error",
+			"/protected/profile-create",
+			"First name, last name and phone number are required"
+		);
+	}
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		return encodedRedirect("error", "/sign-in", "You are not singed in");
+	}
+
+	const { error } = await supabase
+		.from("user_profiles")
+		.update({
+			first_name: firstName,
+			last_name: lastName,
+			phone_number: phoneNumber,
+		})
+		.eq("id", user.id);
+
+	if (error) {
+		return encodedRedirect(
+			"error",
+			"/protected/profile-update",
+			error.message
+		);
+	}
+
+	return encodedRedirect(
+		"success",
+		"/protected/profile-update",
+		"Profile updated"
+	);
+};

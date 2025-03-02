@@ -1,8 +1,8 @@
 import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
 import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import React from "react";
 
 export default async function ProtectedPage() {
 	const supabase = await createClient();
@@ -15,10 +15,6 @@ export default async function ProtectedPage() {
 		return redirect("/sign-in");
 	}
 
-	[1, 2, 3].map((item) => {
-		return item * 2;
-	});
-
 	return (
 		<div className="flex-1 w-full flex flex-col gap-12">
 			<div className="w-full">
@@ -28,6 +24,12 @@ export default async function ProtectedPage() {
 					authenticated user
 				</div>
 			</div>
+			<Link
+				className="underline text-xl underline-offset-4"
+				href="/protected/profile-update"
+			>
+				Edit profile
+			</Link>
 			<div className="flex flex-col gap-2 items-start">
 				<h2 className="font-bold text-2xl mb-4">Your user details</h2>
 				<pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
