@@ -184,10 +184,12 @@ export const createProfileAction = async (formData: FormData) => {
 		return encodedRedirect("error", "/sign-in", "You are not singed in");
 	}
 
+	createdUserProfile.id = user.id;
+
 	if (!firstName || !lastName || !phoneNumber) {
 		return encodedRedirect(
 			"error",
-			"/protected/profile-create",
+			"/protected/profile-editor",
 			"First name, last name and phone number are required"
 		);
 	}
@@ -202,7 +204,7 @@ export const createProfileAction = async (formData: FormData) => {
 		if (profilePictureUploadError) {
 			return encodedRedirect(
 				"error",
-				"/protected/profile-create",
+				"/protected/profile-editor",
 				profilePictureUploadError.message
 			);
 		}
@@ -214,15 +216,14 @@ export const createProfileAction = async (formData: FormData) => {
 		createdUserProfile.profile_picture_filepath = filePath;
 	}
 
-	const { error } = await supabase.from("user_profiles").insert({
-		id: user.id,
-		...createdUserProfile,
-	});
+	const { error } = await supabase
+		.from("user_profiles")
+		.insert(createdUserProfile);
 
 	if (error?.code === "23505") {
 		return encodedRedirect(
 			"error",
-			"/protected/profile-update",
+			"/protected/profile-editor",
 			"User has already been created, please edit the profile"
 		);
 	}
@@ -230,7 +231,7 @@ export const createProfileAction = async (formData: FormData) => {
 	if (error) {
 		return encodedRedirect(
 			"error",
-			"/protected/profile-create",
+			"/protected/profile-editor",
 			error.message
 		);
 	}
@@ -253,7 +254,7 @@ export const updateProfileAction = async (formData: FormData) => {
 	if (!firstName || !lastName || !phoneNumber) {
 		return encodedRedirect(
 			"error",
-			"/protected/profile-create",
+			"/protected/profile-editor",
 			"First name, last name and phone number are required"
 		);
 	}
@@ -275,7 +276,7 @@ export const updateProfileAction = async (formData: FormData) => {
 		if (userProfileError) {
 			return encodedRedirect(
 				"error",
-				"/protected/profile-update",
+				"/protected/profile-editor",
 				userProfileError.message
 			);
 		}
@@ -288,7 +289,7 @@ export const updateProfileAction = async (formData: FormData) => {
 		if (profilePictureUploadError) {
 			return encodedRedirect(
 				"error",
-				"/protected/profile-update",
+				"/protected/profile-editor",
 				profilePictureUploadError.message
 			);
 		}
@@ -306,7 +307,7 @@ export const updateProfileAction = async (formData: FormData) => {
 			if (profilePictureDeleteError) {
 				return encodedRedirect(
 					"error",
-					"/protected/profile-update",
+					"/protected/profile-editor",
 					profilePictureDeleteError.message
 				);
 			}
@@ -321,14 +322,14 @@ export const updateProfileAction = async (formData: FormData) => {
 	if (error) {
 		return encodedRedirect(
 			"error",
-			"/protected/profile-update",
+			"/protected/profile-editor",
 			error.message
 		);
 	}
 
 	return encodedRedirect(
 		"success",
-		"/protected/profile-update",
+		"/protected/profile-editor",
 		"Profile updated"
 	);
 };

@@ -1,4 +1,4 @@
-import { updateProfileAction } from "@/app/actions";
+import { createProfileAction, updateProfileAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,9 @@ import { encodedRedirect } from "@/utils/utils";
 export default async function ProfileEditor(props: {
 	searchParams: Promise<Message>;
 }) {
-	const searchParams = await props.searchParams;
+	let userHasProfile = false;
 
+	const searchParams = await props.searchParams;
 	const supabase = await createClient();
 
 	const {
@@ -22,15 +23,21 @@ export default async function ProfileEditor(props: {
 		.select()
 		.eq("id", user?.id);
 
-	if (error) {
-		encodedRedirect("error", "/protected/profile-update", error.message);
+	if (data && data.length === 1) {
+		userHasProfile = true;
 	}
 
-	const userProfile = data && data[0];
+	const userProfileData = data && data[0];
+
+	if (error) {
+		encodedRedirect("error", "/protected/profile-editor", error.message);
+	}
 
 	return (
 		<form className="flex flex-col gap-4" encType="multipart/form-data">
-			<h1 className="text-2xl font-medium">Edit profile</h1>
+			<h1 className="text-2xl font-medium">
+				{userHasProfile ? "Edit profile" : "Create profile"}
+			</h1>
 			<p className="text-sm text-foreground/60">
 				Please enter your data below.
 			</p>
@@ -39,8 +46,10 @@ export default async function ProfileEditor(props: {
 				<Input
 					name="firstName"
 					placeholder="First Name"
-					defaultValue={userProfile?.first_name}
 					required
+					defaultValue={
+						userHasProfile ? userProfileData?.first_name : ""
+					}
 				/>
 			</div>
 			<div>
@@ -48,8 +57,10 @@ export default async function ProfileEditor(props: {
 				<Input
 					name="lastName"
 					placeholder="Last Name"
-					defaultValue={userProfile?.last_name}
 					required
+					defaultValue={
+						userHasProfile ? userProfileData?.last_name : ""
+					}
 				/>
 			</div>
 			<div>
@@ -59,15 +70,23 @@ export default async function ProfileEditor(props: {
 					pattern="^\+?\d+$"
 					name="phoneNumber"
 					placeholder="Phone Number"
-					defaultValue={userProfile?.phone_number}
 					required
+					defaultValue={
+						userHasProfile ? userProfileData?.phone_number : ""
+					}
 				/>
 			</div>
 			<div>
 				<Label htmlFor="picture">Picture</Label>
 				<Input id="picture" type="file" name="picture" />
 			</div>
-			<SubmitButton formAction={updateProfileAction}>Submit</SubmitButton>
+			<SubmitButton
+				formAction={
+					userHasProfile ? updateProfileAction : createProfileAction
+				}
+			>
+				Submit
+			</SubmitButton>
 			<FormMessage message={searchParams} />
 		</form>
 	);
