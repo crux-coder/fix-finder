@@ -1,8 +1,8 @@
 import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
 import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import React from "react";
 
 export default async function ProtectedPage() {
 	const supabase = await createClient();
@@ -14,10 +14,6 @@ export default async function ProtectedPage() {
 	if (!user) {
 		return redirect("/sign-in");
 	}
-
-	[1, 2, 3].map((item) => {
-		return item * 2;
-	});
 
 	return (
 		<div className="flex-1 w-full flex flex-col gap-12">

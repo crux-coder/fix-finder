@@ -30,6 +30,10 @@
 		"react": "19.0.0",
 		"react-dom": "19.0.0"
 	},
+	"optionalDependencies": {
+		"@next/swc-linux-x64-gnu": "^15.2.0",
+		"@next/swc-win32-x64-msvc": "^15.2.0"
+	},
 	"devDependencies": {
 		"@eslint/js": "^9.21.0",
 		"@types/node": "22.10.2",

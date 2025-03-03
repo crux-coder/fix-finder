@@ -17,6 +17,16 @@ import {
 const data = {
 	navMain: [
 		{
+			title: "User Profile",
+			url: "#",
+			items: [
+				{
+					title: "Profile Editor",
+					url: "/protected/profile-editor",
+				},
+			],
+		},
+		{
 			title: "Electricity",
 			url: "#",
 			items: [
