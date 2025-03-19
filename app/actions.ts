@@ -24,7 +24,7 @@ export const signUpAction = async (formData: FormData) => {
 		email,
 		password,
 		options: {
-			emailRedirectTo: `${origin}/auth/callback`,
+			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected/sign-up-journey`,
 		},
 	});
 
@@ -64,7 +64,7 @@ export const signInWithMagicLinkAction = async (formData: FormData) => {
 	const { error } = await supabase.auth.signInWithOtp({
 		email: email,
 		options: {
-			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected`,
+			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected/sign-up-journey?magicLink=true`,
 		},
 	});
 
@@ -332,4 +332,97 @@ export const updateProfileAction = async (formData: FormData) => {
 		"/protected/profile-editor",
 		"Profile updated"
 	);
+};
+
+export const signUpJourneyAction = async (formData: FormData) => {
+	const supabase = await createClient();
+	const password = formData.get("password") as string | null;
+	const confirmPassword = formData.get("confirmPassword") as string | null;
+	const firstName = formData.get("firstName");
+	const lastName = formData.get("lastName");
+	const organizationName = formData.get("organizationName");
+	const file = formData.get("profilePicture") as File | null;
+	const userProfile: UserProfile = {
+		first_name: firstName ? firstName.toString() : null,
+		last_name: lastName ? lastName.toString() : null,
+	};
+
+	if (password !== confirmPassword) {
+		return encodedRedirect(
+			"error",
+			"/protected/sign-up-journey",
+			"Password and confirm password are not the same"
+		);
+	}
+
+	if (password != null) {
+		const { data, error } = await supabase.auth.updateUser({
+			password: password,
+		});
+
+		if (error) {
+			return encodedRedirect(
+				"error",
+				"/protected/sign-up-journey",
+				error.message
+			);
+		}
+	}
+
+	if (!firstName || !lastName) {
+		return encodedRedirect(
+			"error",
+			"/protected/sign-up-journey",
+			"First name and last name are required"
+		);
+	}
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		return encodedRedirect("error", "/sign-in", "You are not singed in");
+	}
+
+	if (organizationName) {
+		userProfile.organization_name = organizationName.toString();
+	}
+
+	if (file) {
+		const filePath = `${Date.now()}-${file.name}`;
+
+		const { data: profilePictureData, error: profilePictureUploadError } =
+			await supabase.storage
+				.from("user-profile-pictures")
+				.upload(filePath, file);
+
+		if (profilePictureUploadError) {
+			return encodedRedirect(
+				"error",
+				"/protected/sign-up-journey",
+				profilePictureUploadError.message
+			);
+		}
+
+		const profilePictureURL = supabase.storage
+			.from("user-profile-pictures")
+			.getPublicUrl(filePath).data.publicUrl;
+		userProfile.profile_picture_url = profilePictureURL;
+		userProfile.profile_picture_filepath = filePath;
+	}
+
+	userProfile.id = user.id;
+
+	const { error } = await supabase.from("user_profiles").insert(userProfile);
+
+	if (error) {
+		return encodedRedirect(
+			"error",
+			"/protected/sign-up-journey",
+			error.message
+		);
+	}
+
+	return redirect("/protected");
 };
