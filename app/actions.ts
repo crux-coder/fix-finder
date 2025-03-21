@@ -64,6 +64,9 @@ export const signInWithMagicLinkAction = async (formData: FormData) => {
 	const { error } = await supabase.auth.signInWithOtp({
 		email: email,
 		options: {
+			data: {
+				login_method: "magic_link",
+			},
 			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected/sign-up-journey?magicLink=true`,
 		},
 	});
@@ -357,6 +360,7 @@ export const signUpJourneyAction = async (formData: FormData) => {
 
 	if (password != null) {
 		const { data, error } = await supabase.auth.updateUser({
+			data: { login_method: null },
 			password: password,
 		});
 

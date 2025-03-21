@@ -16,7 +16,6 @@ export default function FormInput({
 }) {
 	return (
 		<div>
-            
 			<Label {...labelProps}>{name}</Label>
 			<Input {...inputProps} placeholder={name} />
 		</div>

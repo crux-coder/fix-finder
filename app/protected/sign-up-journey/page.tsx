@@ -6,10 +6,8 @@ import { FormMessage, Message } from "@/components/form-message";
 import { encodedRedirect } from "@/utils/utils";
 import { redirect } from "next/navigation";
 
-type ExtendedMessage = Message & { magicLink?: string };
-
 export default async function SignUpJourney(props: {
-	searchParams: Promise<ExtendedMessage>;
+	searchParams: Promise<Message>;
 }) {
 	const searchParams = await props.searchParams;
 	const supabase = await createClient();
@@ -20,9 +18,8 @@ export default async function SignUpJourney(props: {
 		return encodedRedirect("error", "/sign-in", "Please sign in");
 	}
 
-	console.log(searchParams);
-	
-	const hasPassword = searchParams.magicLink === "true" ? false : true;
+	const hasPassword =
+		user.user_metadata.login_method === "magic_link" ? false : true;
 
 	const { data: userData, error: userDataError } = await supabase
 		.from("user_profiles")
