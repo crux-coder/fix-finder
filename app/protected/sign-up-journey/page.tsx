@@ -18,17 +18,16 @@ export default async function SignUpJourney(props: {
 		return encodedRedirect("error", "/sign-in", "Please sign in");
 	}
 
-	const hasPassword =
-		user.user_metadata.login_method === "magic_link" ? false : true;
-
 	const { data: userData, error: userDataError } = await supabase
 		.from("user_profiles")
 		.select()
 		.eq("id", user.id);
 
-	if (userData) {
-		return redirect("/protected");
-	}
+	console.log("userData", userData);
+
+	const hasPassword = userData && userData[0].profile_created ? false : true;
+
+	
 
 	return (
 		<form className="flex flex-col w-full max-w-md p-4 gap-2 ">

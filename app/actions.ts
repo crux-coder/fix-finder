@@ -64,10 +64,7 @@ export const signInWithMagicLinkAction = async (formData: FormData) => {
 	const { error } = await supabase.auth.signInWithOtp({
 		email: email,
 		options: {
-			data: {
-				login_method: "magic_link",
-			},
-			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected/sign-up-journey?magicLink=true`,
+			emailRedirectTo: `${origin}/auth/callback?redirect_to=/protected/sign-up-journey`,
 		},
 	});
 
@@ -393,7 +390,7 @@ export const signUpJourneyAction = async (formData: FormData) => {
 		userProfile.organization_name = organizationName.toString();
 	}
 
-	if (file) {
+	if (file && file.size > 0) {
 		const filePath = `${Date.now()}-${file.name}`;
 
 		const { data: profilePictureData, error: profilePictureUploadError } =
@@ -416,9 +413,13 @@ export const signUpJourneyAction = async (formData: FormData) => {
 		userProfile.profile_picture_filepath = filePath;
 	}
 
-	userProfile.id = user.id;
+	// userProfile.id = user.id;
+	userProfile.profile_created = true;
 
-	const { error } = await supabase.from("user_profiles").insert(userProfile);
+	const { error } = await supabase
+		.from("user_profiles")
+		.update(userProfile)
+		.eq("id", user.id);
 
 	if (error) {
 		return encodedRedirect(

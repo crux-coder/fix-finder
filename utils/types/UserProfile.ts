@@ -6,4 +6,5 @@ export type UserProfile = {
 	organization_name?: string | null;
 	profile_picture_url?: string | null;
 	profile_picture_filepath?: string | null;
+	profile_created?: boolean;
 };

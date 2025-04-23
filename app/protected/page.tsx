@@ -15,6 +15,17 @@ export default async function ProtectedPage() {
 		return redirect("/sign-in");
 	}
 
+	const { data: userData, error: userDataError } = await supabase
+		.from("user_profiles")
+		.select()
+		.eq("id", user.id);
+	
+	const hasProfile = userData && userData[0].profile_created ? true : false;
+
+	if (!hasProfile) {
+		return redirect("/protected/sign-up-journey");
+	}
+
 	return (
 		<div className="flex-1 w-full flex flex-col gap-12">
 			<div className="w-full">
