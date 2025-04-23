@@ -27,8 +27,6 @@ export default async function SignUpJourney(props: {
 
 	const hasPassword = userData && userData[0].profile_created ? false : true;
 
-	
-
 	return (
 		<form className="flex flex-col w-full max-w-md p-4 gap-2 ">
 			<h1 className="text-2xl font-medium">Sign up Journey</h1>

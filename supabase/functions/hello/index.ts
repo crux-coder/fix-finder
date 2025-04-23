@@ -3,32 +3,33 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+/////////////////////Uncomment this when you start writing local supabase functions///////////////////////////////////
+// import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-console.log("Hello from Functions!");
+// console.log("Hello from Functions!");
 
-const supabase = createClient(
-	Deno.env.get("SUPABASE_URL"),
-	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
-);
+// const supabase = createClient(
+// 	Deno.env.get("SUPABASE_URL"),
+// 	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+// );
 
-Deno.serve(async (req) => {
-	const { data, error } = await supabase
-		.from("user_profiles")
-		.select()
-		.limit(1);
-	const { name } = await req.json();
-	// const data = {
-	// 	message: `Hello ${name}!`,
-	// };
+// Deno.serve(async (req) => {
+// 	const { data, error } = await supabase
+// 		.from("user_profiles")
+// 		.select()
+// 		.limit(1);
+// 	const { name } = await req.json();
+// 	// const data = {
+// 	// 	message: `Hello ${name}!`,
+// 	// };
 
-	console.log(data);
+// 	console.log(data);
 
-	return new Response(JSON.stringify(data), {
-		headers: { "Content-Type": "application/json" },
-	});
-});
-
+// 	return new Response(JSON.stringify(data), {
+// 		headers: { "Content-Type": "application/json" },
+// 	});
+// });
+//////////////////////////////////////////////////////
 /* To invoke locally:
 
   1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)

@@ -19,7 +19,7 @@ export default async function ProtectedPage() {
 		.from("user_profiles")
 		.select()
 		.eq("id", user.id);
-	
+
 	const hasProfile = userData && userData[0].profile_created ? true : false;
 
 	if (!hasProfile) {
