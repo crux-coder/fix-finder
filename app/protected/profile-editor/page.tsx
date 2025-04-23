@@ -9,8 +9,6 @@ import { encodedRedirect } from "@/utils/utils";
 export default async function ProfileEditor(props: {
 	searchParams: Promise<Message>;
 }) {
-	let userHasProfile = false;
-
 	const searchParams = await props.searchParams;
 	const supabase = await createClient();
 
@@ -23,10 +21,7 @@ export default async function ProfileEditor(props: {
 		.select()
 		.eq("id", user?.id);
 
-	if (data && data.length === 1) {
-		userHasProfile = true;
-	}
-
+	const userHasProfile = data && data.length === 1;
 	const userProfileData = data && data[0];
 
 	if (error) {
